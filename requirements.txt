@@ -1,0 +1,11 @@
+flask
+pandas
+numpy
+scikit-learn
+joblib
+tldextract
+python-whois
+matplotlib
+reportlab
+pytest
+python-dotenv
