@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Scan Result</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+
+<div class="container">
+
+    <h1>Scan Result</h1>
+
+    {% if error %}
+        <div class="error-box">{{ error }}</div>
+        <div class="links">
+            <a href="/">Back</a>
+        </div>
+    {% else %}
+
+        <div class="result-card {% if result.prediction == 'PHISHING' %}danger{% else %}safe{% endif %}">
+            <h2>{{ result.prediction }}</h2>
+            <p><strong>URL:</strong> {{ result.url }}</p>
+            <p><strong>Risk Score:</strong> {{ result.risk_score }}%</p>
+            <p><strong>ML Prediction:</strong> {{ result.ml_prediction }}</p>
+            <p><strong>ML Phishing Probability:</strong> {{ result.ml_phishing_probability }}</p>
+        </div>
+
+        <div class="info-grid">
+            <div class="info-box">
+                <h3>Blacklist</h3>
+                <p><strong>Domain:</strong> {{ result.blacklist.domain }}</p>
+                <p><strong>Blacklisted:</strong> {{ result.blacklist.is_blacklisted }}</p>
+            </div>
+
+            <div class="info-box">
+                <h3>WHOIS</h3>
+                <p><strong>Domain Age Days:</strong> {{ result.whois.domain_age_days }}</p>
+                <p><strong>WHOIS Available:</strong> {{ result.whois.whois_available }}</p>
+            </div>
+        </div>
+
+        <div class="reason-box">
+            <h3>Explanation</h3>
+            <ul>
+                {% for reason in result.reasons %}
+                    <li>{{ reason }}</li>
+                {% endfor %}
+            </ul>
+        </div>
+
+        <div class="reason-box">
+            <h3>Extracted URL Features</h3>
+            <table>
+                {% for key, value in result.features.items() %}
+                <tr>
+                    <td>{{ key }}</td>
+                    <td>{{ value }}</td>
+                </tr>
+                {% endfor %}
+            </table>
+        </div>
+
+        <div class="links">
+            <a href="/">Scan Another URL</a>
+            <a href="/history">View History</a>
+        </div>
+
+    {% endif %}
+
+</div>
+
+</body>
+</html>
