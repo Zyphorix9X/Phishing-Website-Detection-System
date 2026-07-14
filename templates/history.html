@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Scan History</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+
+<div class="container wide">
+
+    <h1>Scan History</h1>
+
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>URL</th>
+                <th>Prediction</th>
+                <th>Risk</th>
+                <th>Domain</th>
+                <th>Blacklisted</th>
+                <th>Scanned At</th>
+                <th>Report</th>
+            </tr>
+        </thead>
+
+        <tbody>
+            {% for scan in scans %}
+            <tr>
+                <td>{{ scan.id }}</td>
+                <td class="url-cell">{{ scan.url }}</td>
+                <td class="{% if scan.prediction == 'PHISHING' %}text-danger{% else %}text-safe{% endif %}">
+                    {{ scan.prediction }}
+                </td>
+                <td>{{ scan.risk_score }}%</td>
+                <td>{{ scan.domain }}</td>
+                <td>{{ scan.is_blacklisted }}</td>
+                <td>{{ scan.scanned_at }}</td>
+                <td>
+                    <a href="/report/{{ scan.id }}">PDF</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <div class="links">
+        <a href="/">Back to Scanner</a>
+        <a href="/admin">Admin Dashboard</a>
+    </div>
+
+</div>
+
+</body>
+</html>
