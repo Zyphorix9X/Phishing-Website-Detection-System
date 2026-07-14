@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Admin Dashboard</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+
+<div class="container wide">
+
+    <h1>Admin Dashboard</h1>
+
+    <div class="stats-grid">
+        <div class="stat-card">
+            <h2>{{ stats.total_scans }}</h2>
+            <p>Total Scans</p>
+        </div>
+
+        <div class="stat-card danger-border">
+            <h2>{{ stats.phishing_count }}</h2>
+            <p>Phishing</p>
+        </div>
+
+        <div class="stat-card safe-border">
+            <h2>{{ stats.legitimate_count }}</h2>
+            <p>Legitimate</p>
+        </div>
+
+        <div class="stat-card">
+            <h2>{{ stats.avg_risk }}%</h2>
+            <p>Average Risk</p>
+        </div>
+    </div>
+
+    <div class="reason-box">
+        <h3>Model Metrics</h3>
+
+        {% if metrics %}
+            <p><strong>Accuracy:</strong> {{ metrics.accuracy }}</p>
+            <p><strong>Precision:</strong> {{ metrics.precision }}</p>
+            <p><strong>Recall:</strong> {{ metrics.recall }}</p>
+            <p><strong>F1 Score:</strong> {{ metrics.f1_score }}</p>
+        {% else %}
+            <p>Model metrics not found. Run training first.</p>
+        {% endif %}
+    </div>
+
+    <div class="reason-box">
+        <h3>Confusion Matrix</h3>
+
+        {% if confusion_matrix_exists %}
+            <img src="/models/confusion-matrix" class="matrix-img">
+        {% else %}
+            <p>Confusion matrix not available. Train the model first.</p>
+        {% endif %}
+    </div>
+
+    <div class="reason-box">
+        <h3>Top Scanned Domains</h3>
+
+        <table>
+            <tr>
+                <th>Domain</th>
+                <th>Count</th>
+            </tr>
+
+            {% for domain, count in stats.top_domains %}
+            <tr>
+                <td>{{ domain }}</td>
+                <td>{{ count }}</td>
+            </tr>
+            {% endfor %}
+        </table>
+    </div>
+
+    <div class="links">
+        <a href="/">Back to Scanner</a>
+        <a href="/history">Scan History</a>
+    </div>
+
+</div>
+
+</body>
+</html>
