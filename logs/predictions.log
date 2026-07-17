@@ -10,3 +10,58 @@
 2026-07-17 02:43:40,473 - INFO -  * Restarting with stat
 2026-07-17 02:43:40,873 - WARNING -  * Debugger is active!
 2026-07-17 02:43:40,875 - INFO -  * Debugger PIN: 132-825-239
+2026-07-17 08:40:36,566 - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:5000
+2026-07-17 08:40:36,566 - INFO - [33mPress CTRL+C to quit[0m
+2026-07-17 08:40:36,600 - INFO -  * Restarting with stat
+2026-07-17 08:40:37,585 - WARNING -  * Debugger is active!
+2026-07-17 08:40:37,589 - INFO -  * Debugger PIN: 103-840-242
+2026-07-17 08:45:08,477 - INFO - 127.0.0.1 - - [17/Jul/2026 08:45:08] "GET / HTTP/1.1" 200 -
+2026-07-17 08:45:08,603 - INFO - 127.0.0.1 - - [17/Jul/2026 08:45:08] "GET /static/style.css HTTP/1.1" 200 -
+2026-07-17 08:45:08,671 - INFO - 127.0.0.1 - - [17/Jul/2026 08:45:08] "[33mGET /favicon.ico HTTP/1.1[0m" 404 -
+2026-07-17 08:48:27,316 - INFO - URL=https://www.google.com Prediction=LEGITIMATE Risk=0.0
+2026-07-17 08:48:27,441 - INFO - 127.0.0.1 - - [17/Jul/2026 08:48:27] "POST /scan HTTP/1.1" 200 -
+2026-07-17 08:48:27,501 - INFO - 127.0.0.1 - - [17/Jul/2026 08:48:27] "[36mGET /static/style.css HTTP/1.1[0m" 304 -
+2026-07-17 08:48:45,330 - INFO - 127.0.0.1 - - [17/Jul/2026 08:48:45] "GET /history HTTP/1.1" 200 -
+2026-07-17 08:48:45,352 - INFO - 127.0.0.1 - - [17/Jul/2026 08:48:45] "[36mGET /static/style.css HTTP/1.1[0m" 304 -
+2026-07-17 08:48:47,324 - INFO - 127.0.0.1 - - [17/Jul/2026 08:48:47] "GET / HTTP/1.1" 200 -
+2026-07-17 08:48:47,345 - INFO - 127.0.0.1 - - [17/Jul/2026 08:48:47] "[36mGET /static/style.css HTTP/1.1[0m" 304 -
+2026-07-17 08:48:48,319 - INFO - 127.0.0.1 - - [17/Jul/2026 08:48:48] "GET /admin HTTP/1.1" 200 -
+2026-07-17 08:48:48,339 - INFO - 127.0.0.1 - - [17/Jul/2026 08:48:48] "[36mGET /static/style.css HTTP/1.1[0m" 304 -
+2026-07-17 08:48:48,340 - INFO - 127.0.0.1 - - [17/Jul/2026 08:48:48] "GET /models/confusion-matrix HTTP/1.1" 200 -
+2026-07-17 08:49:12,767 - INFO - URL=https://www.netacad.com/launch?id=abb5810f-a745-4fbd-a1c1-414f3335cadd&tab=curriculum&view=79b0882a-7c98-4575-87ac-8a2c40f1c6df Prediction=LEGITIMATE Risk=7.25
+2026-07-17 08:49:12,771 - INFO - 127.0.0.1 - - [17/Jul/2026 08:49:12] "POST /scan HTTP/1.1" 200 -
+2026-07-17 08:49:12,851 - INFO - 127.0.0.1 - - [17/Jul/2026 08:49:12] "[36mGET /static/style.css HTTP/1.1[0m" 304 -
+2026-07-17 08:49:29,079 - INFO - 127.0.0.1 - - [17/Jul/2026 08:49:29] "GET /history HTTP/1.1" 200 -
+2026-07-17 08:49:29,100 - INFO - 127.0.0.1 - - [17/Jul/2026 08:49:29] "[36mGET /static/style.css HTTP/1.1[0m" 304 -
+2026-07-17 08:49:31,612 - INFO - 127.0.0.1 - - [17/Jul/2026 08:49:31] "GET / HTTP/1.1" 200 -
+2026-07-17 08:49:31,631 - INFO - 127.0.0.1 - - [17/Jul/2026 08:49:31] "[36mGET /static/style.css HTTP/1.1[0m" 304 -
+2026-07-17 08:49:33,130 - INFO - 127.0.0.1 - - [17/Jul/2026 08:49:33] "GET /admin HTTP/1.1" 200 -
+2026-07-17 08:49:33,162 - INFO - 127.0.0.1 - - [17/Jul/2026 08:49:33] "[36mGET /static/style.css HTTP/1.1[0m" 304 -
+2026-07-17 08:49:33,169 - INFO - 127.0.0.1 - - [17/Jul/2026 08:49:33] "[36mGET /models/confusion-matrix HTTP/1.1[0m" 304 -
+2026-07-17 08:50:31,879 - INFO - 127.0.0.1 - - [17/Jul/2026 08:50:31] "GET / HTTP/1.1" 200 -
+2026-07-17 08:50:31,912 - INFO - 127.0.0.1 - - [17/Jul/2026 08:50:31] "[36mGET /static/style.css HTTP/1.1[0m" 304 -
+2026-07-17 08:52:12,118 - INFO - 127.0.0.1 - - [17/Jul/2026 08:52:12] "POST /api/scan HTTP/1.1" 200 -
+2026-07-17 08:53:35,017 - INFO - 127.0.0.1 - - [17/Jul/2026 08:53:35] "GET /admin HTTP/1.1" 200 -
+2026-07-17 08:53:35,047 - INFO - 127.0.0.1 - - [17/Jul/2026 08:53:35] "[36mGET /static/style.css HTTP/1.1[0m" 304 -
+2026-07-17 08:53:35,050 - INFO - 127.0.0.1 - - [17/Jul/2026 08:53:35] "[36mGET /models/confusion-matrix HTTP/1.1[0m" 304 -
+2026-07-17 08:54:02,398 - INFO - 127.0.0.1 - - [17/Jul/2026 08:54:02] "GET /history HTTP/1.1" 200 -
+2026-07-17 08:54:02,427 - INFO - 127.0.0.1 - - [17/Jul/2026 08:54:02] "[36mGET /static/style.css HTTP/1.1[0m" 304 -
+2026-07-17 08:54:15,295 - INFO - 127.0.0.1 - - [17/Jul/2026 08:54:15] "GET /report/3 HTTP/1.1" 200 -
+2026-07-17 08:54:27,909 - INFO - 127.0.0.1 - - [17/Jul/2026 08:54:27] "GET / HTTP/1.1" 200 -
+2026-07-17 08:54:27,943 - INFO - 127.0.0.1 - - [17/Jul/2026 08:54:27] "[36mGET /static/style.css HTTP/1.1[0m" 304 -
+2026-07-17 08:54:30,039 - INFO - 127.0.0.1 - - [17/Jul/2026 08:54:30] "GET /admin HTTP/1.1" 200 -
+2026-07-17 08:54:30,061 - INFO - 127.0.0.1 - - [17/Jul/2026 08:54:30] "[36mGET /static/style.css HTTP/1.1[0m" 304 -
+2026-07-17 08:54:30,065 - INFO - 127.0.0.1 - - [17/Jul/2026 08:54:30] "[36mGET /models/confusion-matrix HTTP/1.1[0m" 304 -
+2026-07-17 08:54:33,751 - INFO - 127.0.0.1 - - [17/Jul/2026 08:54:33] "GET /history HTTP/1.1" 200 -
+2026-07-17 08:54:33,772 - INFO - 127.0.0.1 - - [17/Jul/2026 08:54:33] "[36mGET /static/style.css HTTP/1.1[0m" 304 -
+2026-07-17 08:54:36,353 - INFO - 127.0.0.1 - - [17/Jul/2026 08:54:36] "GET /history HTTP/1.1" 200 -
+2026-07-17 08:54:36,380 - INFO - 127.0.0.1 - - [17/Jul/2026 08:54:36] "[36mGET /static/style.css HTTP/1.1[0m" 304 -
+2026-07-17 18:52:21,543 - INFO - 127.0.0.1 - - [17/Jul/2026 18:52:21] "GET /history HTTP/1.1" 200 -
+2026-07-17 18:52:21,574 - INFO - 127.0.0.1 - - [17/Jul/2026 18:52:21] "[36mGET /static/style.css HTTP/1.1[0m" 304 -
+2026-07-17 20:04:23,443 - INFO - 127.0.0.1 - - [17/Jul/2026 20:04:23] "GET / HTTP/1.1" 200 -
+2026-07-17 20:04:23,507 - INFO - 127.0.0.1 - - [17/Jul/2026 20:04:23] "[36mGET /static/style.css HTTP/1.1[0m" 304 -
+2026-07-17 20:19:43,300 - INFO -  * Detected change in 'D:\\Phishing Website Detection System\\Phishing-Website-Detection-System\\prepare_dataset.py', reloading
+2026-07-17 20:19:44,051 - INFO -  * Restarting with stat
+2026-07-17 20:20:00,676 - WARNING -  * Debugger is active!
+2026-07-17 20:20:00,680 - INFO -  * Debugger PIN: 103-840-242
