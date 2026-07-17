@@ -73,3 +73,11 @@
 2026-07-17 20:40:17,661 - INFO -  * Restarting with stat
 2026-07-17 20:40:18,543 - WARNING -  * Debugger is active!
 2026-07-17 20:40:18,547 - INFO -  * Debugger PIN: 103-840-242
+2026-07-17 20:43:43,019 - INFO -  * Detected change in 'D:\\Phishing Website Detection System\\Phishing-Website-Detection-System\\train_model.py', reloading
+2026-07-17 20:43:43,137 - INFO -  * Restarting with stat
+2026-07-17 20:43:44,084 - WARNING -  * Debugger is active!
+2026-07-17 20:43:44,088 - INFO -  * Debugger PIN: 103-840-242
+2026-07-17 20:43:49,484 - INFO -  * Detected change in 'D:\\Phishing Website Detection System\\Phishing-Website-Detection-System\\train_model.py', reloading
+2026-07-17 20:43:49,609 - INFO -  * Restarting with stat
+2026-07-17 20:43:50,558 - WARNING -  * Debugger is active!
+2026-07-17 20:43:50,562 - INFO -  * Debugger PIN: 103-840-242

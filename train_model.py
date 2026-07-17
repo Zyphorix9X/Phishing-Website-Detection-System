@@ -4,7 +4,6 @@ import joblib
 import pandas as pd
 import matplotlib.pyplot as plt
 
-from sklearn.model_selection import train_test_split
 from sklearn.metrics import (
     accuracy_score,
     precision_score,
@@ -12,7 +11,8 @@ from sklearn.metrics import (
     f1_score,
     classification_report,
     confusion_matrix,
-    ConfusionMatrixDisplay
+    ConfusionMatrixDisplay,
+    roc_auc_score
 )
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.ensemble import RandomForestClassifier
@@ -20,36 +20,33 @@ from sklearn.compose import ColumnTransformer
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import StandardScaler
 
-from config import DATASET_PATH, MODEL_PATH, METRICS_PATH, CONFUSION_MATRIX_PATH
+from config import MODEL_PATH, METRICS_PATH, CONFUSION_MATRIX_PATH
 from ml_transformers import URLFeatureExtractor
 
 
+TRAIN_DATASET_PATH = os.path.join("data", "train_dataset.csv")
+TEST_DATASET_PATH = os.path.join("data", "test_dataset.csv")
+
+
 def train():
-    print("[INFO] Loading dataset...")
+    print("[INFO] Loading prepared train/test datasets...")
 
-    df = pd.read_csv(DATASET_PATH)
+    if not os.path.exists(TRAIN_DATASET_PATH) or not os.path.exists(TEST_DATASET_PATH):
+        raise FileNotFoundError(
+            "Prepared train/test datasets not found. Run python prepare_dataset.py first."
+        )
 
-    if "url" not in df.columns or "label" not in df.columns:
-        raise ValueError("Dataset must contain 'url' and 'label' columns.")
+    train_df_raw = pd.read_csv(TRAIN_DATASET_PATH)
+    test_df_raw = pd.read_csv(TEST_DATASET_PATH)
 
-    df = df.dropna(subset=["url", "label"])
-    df["url"] = df["url"].astype(str)
-    df["label"] = df["label"].astype(int)
+    X_train = train_df_raw["url"].astype(str)
+    y_train = train_df_raw["label"].astype(int)
 
-    print("[INFO] Dataset size:", len(df))
-    print("[INFO] Legitimate:", len(df[df["label"] == 0]))
-    print("[INFO] Phishing:", len(df[df["label"] == 1]))
+    X_test = test_df_raw["url"].astype(str)
+    y_test = test_df_raw["label"].astype(int)
 
-    X = df["url"]
-    y = df["label"]
-
-    X_train, X_test, y_train, y_test = train_test_split(
-        X,
-        y,
-        test_size=0.2,
-        random_state=42,
-        stratify=y
-    )
+    print(f"[INFO] Training rows: {len(X_train)}")
+    print(f"[INFO] Testing rows: {len(X_test)}")
 
     preprocessor = ColumnTransformer(
         transformers=[
@@ -58,7 +55,7 @@ def train():
                 TfidfVectorizer(
                     analyzer="char",
                     ngram_range=(3, 5),
-                    max_features=7000,
+                    max_features=10000,
                     lowercase=True
                 ),
                 "url"
@@ -77,7 +74,7 @@ def train():
     model = Pipeline([
         ("features", preprocessor),
         ("classifier", RandomForestClassifier(
-            n_estimators=400,
+            n_estimators=500,
             max_depth=None,
             min_samples_split=2,
             min_samples_leaf=1,
@@ -90,17 +87,29 @@ def train():
     train_df = pd.DataFrame({"url": X_train})
     test_df = pd.DataFrame({"url": X_test})
 
-    print("[INFO] Training model...")
+    print("[INFO] Training Random Forest model...")
     model.fit(train_df, y_train)
 
     print("[INFO] Evaluating model...")
     y_pred = model.predict(test_df)
+    y_prob = model.predict_proba(test_df)[:, 1]
 
     metrics = {
-        "accuracy": round(accuracy_score(y_test, y_pred), 4),
-        "precision": round(precision_score(y_test, y_pred), 4),
-        "recall": round(recall_score(y_test, y_pred), 4),
-        "f1_score": round(f1_score(y_test, y_pred), 4),
+        "dataset": {
+            "train_rows": int(len(X_train)),
+            "test_rows": int(len(X_test)),
+            "train_legitimate": int((y_train == 0).sum()),
+            "train_phishing": int((y_train == 1).sum()),
+            "test_legitimate": int((y_test == 0).sum()),
+            "test_phishing": int((y_test == 1).sum())
+        },
+        "performance": {
+            "accuracy": round(accuracy_score(y_test, y_pred), 4),
+            "precision": round(precision_score(y_test, y_pred), 4),
+            "recall": round(recall_score(y_test, y_pred), 4),
+            "f1_score": round(f1_score(y_test, y_pred), 4),
+            "roc_auc": round(roc_auc_score(y_test, y_prob), 4)
+        },
         "classification_report": classification_report(y_test, y_pred)
     }
 
@@ -109,13 +118,11 @@ def train():
 
     os.makedirs(os.path.dirname(MODEL_PATH), exist_ok=True)
 
-    print("[INFO] Saving model...")
     joblib.dump(model, MODEL_PATH)
 
     with open(METRICS_PATH, "w", encoding="utf-8") as file:
         json.dump(metrics, file, indent=4)
 
-    print("[INFO] Creating confusion matrix...")
     cm = confusion_matrix(y_test, y_pred)
 
     display = ConfusionMatrixDisplay(
