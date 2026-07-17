@@ -1,0 +1,21 @@
+{
+    "raw_rows": 235795,
+    "cleaned_rows": 235370,
+    "final_rows": 201040,
+    "train_rows": 160832,
+    "test_rows": 40208,
+    "legitimate_rows": 100520,
+    "phishing_rows": 100520,
+    "label_standard": {
+        "0": "legitimate",
+        "1": "phishing"
+    },
+    "url_column_detected": "URL",
+    "label_column_detected": "label",
+    "notes": [
+        "Duplicate URLs removed.",
+        "Labels normalized to project standard.",
+        "Dataset balanced to avoid class bias.",
+        "Train/test split created using stratified sampling."
+    ]
+}

@@ -84,9 +84,9 @@ def normalize_label(value):
         # IMPORTANT:
         # If your downloaded PhiUSIIL says 1 = legitimate and 0 = phishing,
         # keep this conversion:
-        if value_int == 1:
-            return 0
         if value_int == 0:
+            return 0
+        if value_int == 1:
             return 1
 
     except Exception:
