@@ -36,10 +36,13 @@
         <h3>Model Metrics</h3>
 
         {% if metrics %}
-            <p><strong>Accuracy:</strong> {{ metrics.accuracy }}</p>
-            <p><strong>Precision:</strong> {{ metrics.precision }}</p>
-            <p><strong>Recall:</strong> {{ metrics.recall }}</p>
-            <p><strong>F1 Score:</strong> {{ metrics.f1_score }}</p>
+            <p><strong>Training Rows:</strong> {{ metrics.dataset.train_rows }}</p>
+            <p><strong>Testing Rows:</strong> {{ metrics.dataset.test_rows }}</p>
+            <p><strong>Accuracy:</strong> {{ metrics.performance.accuracy }}</p>
+            <p><strong>Precision:</strong> {{ metrics.performance.precision }}</p>
+            <p><strong>Recall:</strong> {{ metrics.performance.recall }}</p>
+            <p><strong>F1 Score:</strong> {{ metrics.performance.f1_score }}</p>
+            <p><strong>ROC-AUC:</strong> {{ metrics.performance.roc_auc }}</p>
         {% else %}
             <p>Model metrics not found. Run training first.</p>
         {% endif %}
