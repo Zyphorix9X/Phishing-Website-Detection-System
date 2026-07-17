@@ -81,3 +81,17 @@
 2026-07-17 20:43:49,609 - INFO -  * Restarting with stat
 2026-07-17 20:43:50,558 - WARNING -  * Debugger is active!
 2026-07-17 20:43:50,562 - INFO -  * Debugger PIN: 103-840-242
+2026-07-17 20:57:46,941 - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:5000
+2026-07-17 20:57:46,941 - INFO - [33mPress CTRL+C to quit[0m
+2026-07-17 20:57:46,942 - INFO -  * Restarting with stat
+2026-07-17 20:57:47,799 - WARNING -  * Debugger is active!
+2026-07-17 20:57:47,803 - INFO -  * Debugger PIN: 103-840-242
+2026-07-17 20:57:56,928 - INFO - 127.0.0.1 - - [17/Jul/2026 20:57:56] "GET / HTTP/1.1" 200 -
+2026-07-17 20:57:57,314 - INFO - 127.0.0.1 - - [17/Jul/2026 20:57:57] "[36mGET /static/style.css HTTP/1.1[0m" 304 -
+2026-07-17 20:58:01,959 - INFO - 127.0.0.1 - - [17/Jul/2026 20:58:01] "GET /admin HTTP/1.1" 200 -
+2026-07-17 20:58:01,986 - INFO - 127.0.0.1 - - [17/Jul/2026 20:58:01] "[36mGET /static/style.css HTTP/1.1[0m" 304 -
+2026-07-17 20:58:01,987 - INFO - 127.0.0.1 - - [17/Jul/2026 20:58:01] "GET /models/confusion-matrix HTTP/1.1" 200 -
+2026-07-17 20:58:36,164 - INFO - 127.0.0.1 - - [17/Jul/2026 20:58:36] "GET /admin HTTP/1.1" 200 -
+2026-07-17 20:58:36,192 - INFO - 127.0.0.1 - - [17/Jul/2026 20:58:36] "[36mGET /static/style.css HTTP/1.1[0m" 304 -
+2026-07-17 20:58:36,193 - INFO - 127.0.0.1 - - [17/Jul/2026 20:58:36] "[36mGET /models/confusion-matrix HTTP/1.1[0m" 304 -
