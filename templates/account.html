@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% block title %}My profile | Sentinel{% endblock %}
+{% macro profile_field(field, hint='', input_type='text', autocomplete='', required=false, minlength=0, maxlength=256) %}
+<div class="field">
+  {{ field.label }}
+  {{ field(type=input_type, autocomplete=autocomplete, required=required, minlength=minlength, maxlength=maxlength, aria_invalid='true' if field.errors else 'false', aria_describedby=field.id ~ '-hint ' ~ field.id ~ '-errors') }}
+  <small id="{{ field.id }}-hint">{{ hint }}</small>
+  <div id="{{ field.id }}-errors">{% for error in field.errors %}<span class="field-error">{{ error }}</span>{% endfor %}</div>
+</div>
+{% endmacro %}
+{% block content %}
+<div class="page-heading"><div><span class="section-kicker">YOUR ACCOUNT</span><h1>My profile</h1><p>Manage your personal details and keep your account secure.</p></div><a class="button button-secondary" href="{{ url_for('main.dashboard') }}">Back to dashboard</a></div>
+<div class="profile-layout">
+  <aside class="content-card profile-summary" aria-label="Your profile">
+    <div class="profile-avatar" aria-hidden="true">{{ current_user.full_name[:1]|upper }}</div>
+    <h2>{{ current_user.full_name }}</h2>
+    <p class="profile-email">{{ current_user.email }}</p>
+    <span class="status-pill muted-pill">{{ current_user.role|title }}</span>
+    <dl class="profile-facts"><div><dt>Member since</dt><dd>{{ current_user.created_at|sl_time('%B %Y', false) }}</dd></div><div><dt>Account status</dt><dd>Active</dd></div></dl>
+    <p class="profile-privacy">Your profile and saved scan history belong to your account.</p>
+  </aside>
+  <section class="content-card profile-editor">
+    <div class="card-heading"><div><span class="section-kicker">PERSONAL INFORMATION</span><h2>Edit profile</h2></div></div>
+    <form method="post" class="stack-form" id="profile-form" data-original-email="{{ current_user.email }}">
+      {{ form.hidden_tag() }}
+      {% if form.errors %}<div class="profile-validation-summary" role="alert">Please correct the highlighted fields. Your changes have not been saved.</div>{% endif %}
+      <div class="form-grid">
+        {{ profile_field(form.full_name, '2–120 characters. Letters, spaces, apostrophes, hyphens, and periods.', autocomplete='name', required=true, minlength=2, maxlength=120) }}
+        {{ profile_field(form.email, 'Changing your email requires your current password.', input_type='email', autocomplete='email', required=true, maxlength=254) }}
+      </div>
+      <div class="form-divider"><span>Change password</span><small>Leave these two fields empty to keep your existing password.</small></div>
+      <div class="form-grid">
+        {{ profile_field(form.new_password, '12–256 characters with upper and lower case letters, a number, and a symbol.', input_type='password', autocomplete='new-password', minlength=12) }}
+        {{ profile_field(form.confirm_password, 'Enter the same new password again.', input_type='password', autocomplete='new-password') }}
+      </div>
+      <ul class="password-requirements" aria-label="New password requirements">
+        <li data-password-rule="length">12–256 characters</li><li data-password-rule="upper">Uppercase letter</li><li data-password-rule="lower">Lowercase letter</li><li data-password-rule="number">Number</li><li data-password-rule="symbol">Symbol</li>
+      </ul>
+      <p class="password-match" id="password-match" aria-live="polite"></p>
+      <div class="form-divider"><span>Confirm sensitive changes</span><small>For an email or password change, confirm that it is you.</small></div>
+      {{ profile_field(form.current_password, 'Required when you change your email or password.', input_type='password', autocomplete='current-password') }}
+      <div class="profile-actions"><a class="button button-secondary" href="{{ url_for('main.account') }}">Cancel changes</a><button class="button button-primary" type="submit">Save profile <span aria-hidden="true">→</span></button></div>
+    </form>
+  </section>
+</div>
+{% endblock %}
+{% block scripts %}<script src="{{ url_for('static', filename='profile.js') }}" defer></script>{% endblock %}

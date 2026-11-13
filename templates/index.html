@@ -1,25 +1,13 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Phishing Website Detection System</title>
-    <link rel="stylesheet" href="/static/style.css">
-</head>
-<body>
-
-<div class="container">
-    <h1>Phishing Website Detection System</h1>
-    <p class="subtitle">Advanced ML, WHOIS, Blacklist, and Explainable Risk Scoring</p>
-
-    <form action="/scan" method="POST" class="scan-form">
-        <input type="text" name="url" placeholder="Enter URL, example: https://example.com" required>
-        <button type="submit">Analyze URL</button>
-    </form>
-
-    <div class="links">
-        <a href="/history">Scan History</a>
-        <a href="/admin">Admin Dashboard</a>
-    </div>
-</div>
-
-</body>
-</html>
+{% extends "base.html" %}
+{% block title %}Sentinel | Detect phishing before it reaches you{% endblock %}
+{% block content %}
+<section class="hero-section"><div class="hero-copy"><div class="eyebrow"><span class="eyebrow-pulse"></span> URL THREAT INTELLIGENCE</div><h1>See the threat<br>behind the <span class="accent-text">link.</span></h1><p class="hero-lede">Analyze suspicious URLs with a machine learning model, structural indicators, and known threat sources. Understand what the checks found before you decide what to do next.</p><div class="hero-trust"><span class="trust-icon">✓</span> The submitted page is never opened by this scanner</div><div class="hero-trust"><span class="trust-icon">✓</span> Results show evidence and confidence limits</div></div>
+<div class="hero-visual" aria-hidden="true"><div class="orbit orbit-one"></div><div class="orbit orbit-two"></div><div class="scan-core"><div class="core-rings"><span>⌕</span></div><small>THREAT<br>ANALYSIS</small></div><div class="orbit-tag tag-top"><span class="tag-dot teal-dot"></span> ML ENGINE</div><div class="orbit-tag tag-right"><span class="tag-dot blue-dot"></span> URL SIGNALS</div><div class="orbit-tag tag-bottom"><span class="tag-dot violet-dot"></span> INTELLIGENCE</div><div class="visual-glow"></div></div></section>
+<section class="scan-panel" id="scanner"><div class="scan-panel-header"><div><div class="section-kicker">START AN ANALYSIS</div><h2>Check a suspicious URL</h2></div><span class="panel-badge"><span class="tiny-live"></span> ENGINE ONLINE</span></div><p class="muted-copy">Paste a full link or domain. Sentinel analyzes URL structure and threat data without visiting the destination.</p>
+<form action="{{ url_for('main.scan') }}" method="post" class="url-form" data-loading-form>{{ form.hidden_tag() }}<label class="sr-only" for="url">URL to analyze</label><div class="url-input-wrap"><span class="input-prefix">↗</span>{{ form.url(id="url", placeholder="https://example.com/sign-in", autocomplete="url", autocapitalize="off", spellcheck="false") }}</div><button class="button button-primary scan-submit" type="submit"><span class="button-label">Analyze URL</span><span class="button-loading">Analyzing…</span><span class="button-arrow">→</span></button></form>
+{% for error in form.url.errors %}<p class="field-error">{{ error }}</p>{% endfor %}<div class="scan-disclaimer"><span>ⓘ</span> A legitimate result is not a guarantee of safety. Do not enter sensitive information based only on this report.</div></section>
+<section class="capability-strip" id="capabilities"><div class="capability-intro"><span class="section-kicker">SIGNALS, IN CONTEXT</span><h2>One URL.<br>Multiple checks.</h2><p>See how the result was assembled, including where evidence is missing.</p></div><article class="capability-card"><span class="cap-icon icon-cyan">⌘</span><span class="card-index">01 / MODEL</span><h3>URL pattern analysis</h3><p>A preserved Random Forest model scores lexical and structural URL features, including character patterns and suspicious terms.</p></article><article class="capability-card"><span class="cap-icon icon-blue">◉</span><span class="card-index">02 / INTELLIGENCE</span><h3>Threat source checks</h3><p>Compare the domain against the local list, with optional OpenPhish and PhishTank adapters when configured.</p></article><article class="capability-card"><span class="cap-icon icon-violet">⎇</span><span class="card-index">03 / EXPLAIN</span><h3>Evidence, not a black box</h3><p>Review rule indicators and local model feature-ablation explanations where the loaded model supports them.</p></article></section>
+<section class="how-section" id="how-it-works"><div><span class="section-kicker">A SAFER WORKFLOW</span><h2>Inspect first.<br>Open later.</h2></div><div class="workflow-steps"><div><span>1</span><strong>Submit the link</strong><p>Normalize the URL and reject unsupported schemes before analysis.</p></div><div><span>2</span><strong>Read the signals</strong><p>See model output, domain lookup status, and threat-source evidence separately.</p></div><div><span>3</span><strong>Choose your next step</strong><p>Use the report as one input, then confirm the destination through a trusted channel.</p></div></div></section>
+<section class="landing-bottom"><div><span class="section-kicker">YOUR SECURITY WORKSPACE</span><h2>Keep an eye on what you scan.</h2><p>Create an account to save private scan history, view trends, and download reports.</p></div><a class="button button-quiet" href="{{ url_for('auth.register') }}">Create a free account <span>→</span></a></section>
+{% endblock %}
+{% block scripts %}<script src="{{ url_for('static', filename='app.js') }}" defer></script>{% endblock %}

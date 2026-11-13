@@ -1,73 +1,70 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Scan Result</title>
-    <link rel="stylesheet" href="/static/style.css">
-</head>
-<body>
-
-<div class="container">
-
-    <h1>Scan Result</h1>
-
-    {% if error %}
-        <div class="error-box">{{ error }}</div>
-        <div class="links">
-            <a href="/">Back</a>
-        </div>
-    {% else %}
-
-        <div class="result-card {% if result.prediction == 'PHISHING' %}danger{% else %}safe{% endif %}">
-            <h2>{{ result.prediction }}</h2>
-            <p><strong>URL:</strong> {{ result.url }}</p>
-            <p><strong>Risk Score:</strong> {{ result.risk_score }}%</p>
-            <p><strong>ML Prediction:</strong> {{ result.ml_prediction }}</p>
-            <p><strong>ML Phishing Probability:</strong> {{ result.ml_phishing_probability }}</p>
-        </div>
-
-        <div class="info-grid">
-            <div class="info-box">
-                <h3>Blacklist</h3>
-                <p><strong>Domain:</strong> {{ result.blacklist.domain }}</p>
-                <p><strong>Blacklisted:</strong> {{ result.blacklist.is_blacklisted }}</p>
-            </div>
-
-            <div class="info-box">
-                <h3>WHOIS</h3>
-                <p><strong>Domain Age Days:</strong> {{ result.whois.domain_age_days }}</p>
-                <p><strong>WHOIS Available:</strong> {{ result.whois.whois_available }}</p>
-            </div>
-        </div>
-
-        <div class="reason-box">
-            <h3>Explanation</h3>
-            <ul>
-                {% for reason in result.reasons %}
-                    <li>{{ reason }}</li>
-                {% endfor %}
-            </ul>
-        </div>
-
-        <div class="reason-box">
-            <h3>Extracted URL Features</h3>
-            <table>
-                {% for key, value in result.features.items() %}
-                <tr>
-                    <td>{{ key }}</td>
-                    <td>{{ value }}</td>
-                </tr>
-                {% endfor %}
-            </table>
-        </div>
-
-        <div class="links">
-            <a href="/">Scan Another URL</a>
-            <a href="/history">View History</a>
-        </div>
-
-    {% endif %}
-
+{% extends "base.html" %}
+{% block title %}{{ result.prediction }} analysis | Sentinel{% endblock %}
+{% block content %}
+<div class="page-heading result-heading">
+  <div><span class="section-kicker">ANALYSIS REPORT{% if scan %} · SNT-{{ "%06d"|format(scan.id) }}{% endif %}</span><h1>Scan summary</h1><p>Observed risk, completed checks, and what to do next.</p></div>
+  <div class="heading-actions"><a class="button button-quiet" href="{{ url_for('main.scan') }}">New scan <span aria-hidden="true">＋</span></a>{% if scan and scan.scan_status == 'completed' %}<a class="button button-primary" href="{{ url_for('main.download_report', scan_id=scan.id) }}">Download PDF <span aria-hidden="true">↓</span></a>{% endif %}</div>
 </div>
-
-</body>
-</html>
+{% if scan and scan.scan_status == 'queued' %}
+<section class="content-card pending-scan"><div class="pending-orbit">⌕</div><span class="section-kicker">ANALYSIS IN PROGRESS</span><h2>Collecting URL signals</h2><p>The analysis worker is checking URL indicators and configured intelligence sources. This page will update when the scan completes.</p><div class="pending-track"><i></i></div><a class="text-link" href="{{ url_for('main.dashboard') }}">Return to overview</a></section>
+<script>const statusUrl={{ url_for('main.scan_status',scan_id=scan.id)|tojson }};const poll=async()=>{try{const response=await fetch(statusUrl,{headers:{'Accept':'application/json'}});if(!response.ok)return;const status=await response.json();if(status.status==='completed'||status.status==='failed'){window.location.assign(status.url);return}}catch(e){}setTimeout(poll,2500)};setTimeout(poll,1800);</script>
+{% else %}
+{% set research = result.model_deployment_status|default('research_only') != 'validated' or result.model_warning %}
+{% set completed_sources = result.threat_intelligence|selectattr('status','in',['no_match','confirmed_match'])|list %}
+{% set matches = result.threat_intelligence|selectattr('matched')|list %}
+{% set not_configured = result.threat_intelligence|selectattr('status','equalto','not_configured')|list %}
+{% set risk_percent = result.risk_percentage|default(none) %}
+{% set risk_display = result.risk_percentage_display|default('—') %}
+{% if result.error %}<div class="notice-box warning-notice"><span>!</span><div><strong>Analysis could not be completed</strong><p>{{ result.error }}</p></div></div>{% endif %}
+{% if result.legacy_record %}<div class="notice-box warning-notice"><span>!</span><div><strong>Historical result retained</strong><p>{{ result.legacy_verdict_semantics }}</p></div></div>{% endif %}
+<section class="result-overview">
+  <div class="verdict-card risk-score-card verdict-{{ result.prediction|lower }}">
+    <div class="risk-score-heading"><div><span class="risk-score-label">RISK INDICATOR SCORE</span><strong class="risk-score-value">{{ risk_display }}</strong></div><span class="verification-chip">{% if result.prediction == 'UNVERIFIED' %}Verification incomplete{% elif result.prediction == 'SUSPICIOUS' %}Review recommended{% elif result.prediction == 'PHISHING' %}Phishing detected{% else %}No detection threshold reached{% endif %}</span></div>
+    {% if risk_percent is not none %}<div class="risk-score-track" role="meter" aria-label="Risk indicator score, not a phishing probability" aria-valuemin="0" aria-valuemax="100" aria-valuenow="{{ risk_percent }}"><span style="width:{{ risk_percent }}%"></span></div><div class="risk-score-scale" aria-hidden="true"><span>0%</span><span>50%</span><span>100%</span></div>{% endif %}
+    <h2 class="risk-score-title">{{ result.risk_headline or 'Run a new scan for a risk score' }}</h2>
+    <p class="risk-score-description">{% if risk_percent is none %}This older result has no current indicator score. Run a new scan to calculate the percentage.{% else %}This percentage is a weighted score from completed checks, not the probability that the website is harmful.{% endif %}</p>
+    <div class="risk-score-footer"><span><strong>{{ completed_sources|length }} of {{ result.threat_intelligence|length }}</strong> threat sources checked</span><span>{% if result.prediction == 'UNVERIFIED' %}Safety is not verified{% elif result.prediction == 'PHISHING' %}Avoid entering sensitive information{% else %}Verify before sharing information{% endif %}</span></div>
+  </div>
+  <div class="overview-metrics">
+    <div class="metric-card"><span>THREAT MATCHES</span><strong>{{ matches|length }}</strong><p>{% if matches %}A configured source reported this URL.{% else %}No confirmed matches in completed checks.{% endif %}</p></div>
+    <div class="metric-card"><span>CHECK COVERAGE</span><strong>{{ completed_sources|length }}<small> / {{ result.threat_intelligence|length }}</small></strong><p>{% if not_configured %}{{ not_configured|length }} not configured. {% endif %}Unchecked sources may reveal additional risks.</p></div>
+    <div class="metric-card"><span>RECOMMENDED ACTION</span><strong class="metric-word">{% if result.prediction == 'PHISHING' %}Avoid this link{% else %}Verify the link{% endif %}</strong><p>Use a known bookmark or confirm the destination independently.</p></div>
+  </div>
+</section>
+<div class="url-summary"><span class="url-summary-icon" aria-hidden="true">↗</span><div><span class="section-kicker">SUBMITTED URL</span><p class="long-url">{{ result.normalized_url or result.url }}</p><small class="scan-timestamp">Recorded {{ (result.scanned_at or ((scan.completed_at or scan.created_at) if scan else none))|sl_time }}</small></div></div>
+<div class="report-grid">
+  <section class="content-card">
+    <div class="card-heading"><div><span class="section-kicker">URL OBSERVATIONS</span><h2>What the URL tells us</h2></div>{% if result.url_indicator_score is defined %}<span class="status-pill muted-pill">{{ result.url_indicator_score }} indicator points</span>{% endif %}</div>
+    <p class="muted-copy">These observations describe URL structure. They do not establish whether the page is trustworthy.</p>
+    {% if result.url_indicators is defined %}<ul class="indicator-list scored-indicators">{% for item in result.url_indicators %}<li class="indicator-{{ item.severity }}"><span class="indicator-bullet"></span><div>{{ item.description }}<small>{{ item.points }} points · {{ 'Observation' if item.severity == 'info' else item.severity|title }}</small></div></li>{% endfor %}</ul>
+    {% else %}<div class="notice-box"><span>ⓘ</span><div><strong>Earlier rule notes</strong><p>This scan predates the contextual URL rules. Run a new scan for updated observations.</p></div></div><details class="historical-notes"><summary>Show stored rule notes</summary><ul class="indicator-list">{% for reason in result.reasons %}<li>{{ reason }}</li>{% endfor %}</ul></details>{% endif %}
+    <div class="feature-chips">{% if result.features.has_https %}<span class="feature-chip">HTTPS transport</span>{% else %}<span class="feature-chip warning">No HTTPS transport</span>{% endif %}<span class="feature-chip">{{ result.features.url_length or '—' }} characters</span></div>
+  </section>
+  <section class="content-card">
+    <div class="card-heading"><div><span class="section-kicker">THREAT INTELLIGENCE</span><h2>Checks and coverage</h2></div></div>
+    <div class="provider-list">{% for item in result.threat_intelligence %}<div class="provider-row"><div><strong>{{ item.provider }}</strong><small>{% if item.evidence.domain %}{{ item.evidence.domain }}{% elif item.evidence.feed %}{{ item.evidence.feed }}{% else %}External evidence source{% endif %}</small></div><span class="provider-status status-{{ item.status }}">{{ item.status|replace('_',' ')|title }}</span></div>{% else %}<p class="muted-copy">No provider results were recorded for this scan.</p>{% endfor %}</div>
+    <p class="coverage-note">Not configured and unavailable checks contribute no reputation evidence. A completed check with no match only means that source did not report a match.</p>
+  </section>
+  <section class="content-card">
+    <div class="card-heading"><div><span class="section-kicker">REGISTRATION INFORMATION</span><h2>{{ result.whois.domain or 'Domain information unavailable' }}</h2></div></div>
+    <div class="detail-rows"><div><span>Registration date</span><strong>{{ result.whois.registration_date or 'Unavailable' }}</strong></div><div><span>Domain age</span><strong>{% if result.whois.domain_age_days is not none %}{{ result.whois.domain_age_days }} days{% else %}Unavailable{% endif %}</strong></div><div><span>Registrar</span><strong>{{ result.whois.registrar or 'Unavailable' }}</strong></div><div><span>Expiration date</span><strong>{{ result.whois.expiration_date or 'Unavailable' }}</strong></div></div>
+    <p class="coverage-note">Missing registration data is not evidence of phishing or a website outage.</p>
+  </section>
+  <section class="content-card">
+    <div class="card-heading"><div><span class="section-kicker">NEXT STEPS</span><h2>Verify before sharing information</h2></div></div>
+    <ul class="indicator-list"><li>Reach the service through a known bookmark or an independently verified address.</li><li>Confirm an unexpected link with the sender through a separate trusted channel.</li><li>This scan did not open the webpage, follow its redirects, or inspect its login forms.</li></ul>
+  </section>
+</div>
+<details class="content-card model-diagnostics" id="model-diagnostics">
+  <summary><span>{{ 'Experimental model details' if research else 'Model details' }}</span><span class="status-pill muted-pill">{{ 'EXCLUDED FROM VERDICT' if research else 'UNCALIBRATED SCORE' }}</span></summary>
+  <div class="diagnostic-body">
+    <p class="muted-copy">{{ result.model_warning or 'The model output is uncalibrated. It is not a statistically established probability that the URL is malicious.' }} This raw model vote is not a confirmed detection.</p>
+    <dl class="diagnostic-values"><div><dt>Raw classifier score</dt><dd>{% if result.ml_phishing_probability is not none %}{{ (result.ml_phishing_probability * 100)|round(1) }}%{% else %}Unavailable{% endif %}</dd></div><div><dt>Experimental class vote</dt><dd>{{ result.ml_prediction }}</dd></div><div><dt>Model version</dt><dd>{{ result.model_version or 'Not recorded' }}</dd></div></dl>
+    {% if result.model_explanation.status == 'available' %}<p class="muted-copy">{{ 'SHAP attributions' if result.model_explanation.method == 'shap_tree_explainer' else 'Fitted-model feature ablation' }} explain this model output, not the website's actual intent.</p><div class="contribution-list">{% for item in result.model_explanation.items %}<div class="contribution-row"><span class="contribution-name">{{ item.feature }}</span><span class="contribution-direction {{ item.direction }}">{{ item.direction }} <b>{{ item.change }} pp</b></span></div>{% endfor %}</div>
+    {% else %}<p class="muted-copy">No compatible local feature explanation was recorded.</p>{% endif %}
+  </div>
+</details>
+<div class="confidence-note"><span>ⓘ</span><p>A LEGITIMATE classification is not a safety certificate. UNVERIFIED means the evidence is insufficient; it does not mean the URL was found to be malicious.</p></div>
+{% if guest %}<div class="guest-save-banner"><div><strong>Keep this analysis in your workspace</strong><p>Sign in to save future scans and download reports.</p></div><a class="button button-primary" href="{{ url_for('auth.register') }}">Create account</a></div>{% endif %}
+{% endif %}
+{% endblock %}

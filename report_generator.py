@@ -1,93 +1,28 @@
-import os
-from reportlab.lib.pagesizes import A4
-from reportlab.pdfgen import canvas
+"""Compatibility entry point for the owner-scoped PDF report service."""
 
-from config import REPORT_DIR
+from types import SimpleNamespace
+
+from phishing_app.services.reporting import generate_pdf_report as _generate_pdf_report
 
 
-def generate_pdf_report(scan):
-    os.makedirs(REPORT_DIR, exist_ok=True)
-
-    filename = f"scan_report_{scan['id']}.pdf"
-    filepath = os.path.join(REPORT_DIR, filename)
-
-    pdf = canvas.Canvas(filepath, pagesize=A4)
-    width, height = A4
-
-    y = height - 50
-
-    pdf.setFont("Helvetica-Bold", 18)
-    pdf.drawString(50, y, "Phishing Website Detection Report")
-
-    y -= 40
-    pdf.setFont("Helvetica", 11)
-    pdf.drawString(50, y, f"Report ID: {scan['id']}")
-
-    y -= 20
-    pdf.drawString(50, y, f"Scanned At: {scan['scanned_at']}")
-
-    y -= 30
-    pdf.setFont("Helvetica-Bold", 13)
-    pdf.drawString(50, y, "URL Information")
-
-    y -= 25
-    pdf.setFont("Helvetica", 10)
-    pdf.drawString(50, y, f"URL: {scan['url'][:95]}")
-
-    y -= 20
-    pdf.drawString(50, y, f"Domain: {scan['domain']}")
-
-    y -= 30
-    pdf.setFont("Helvetica-Bold", 13)
-    pdf.drawString(50, y, "Detection Result")
-
-    y -= 25
-    pdf.setFont("Helvetica", 11)
-    pdf.drawString(50, y, f"Final Prediction: {scan['prediction']}")
-
-    y -= 20
-    pdf.drawString(50, y, f"ML Prediction: {scan['ml_prediction']}")
-
-    y -= 20
-    pdf.drawString(50, y, f"Risk Score: {scan['risk_score']}%")
-
-    y -= 20
-    pdf.drawString(50, y, f"ML Phishing Probability: {scan['ml_probability']}")
-
-    y -= 20
-    pdf.drawString(50, y, f"Blacklisted: {'Yes' if scan['is_blacklisted'] else 'No'}")
-
-    y -= 20
-    pdf.drawString(50, y, f"Domain Age Days: {scan['domain_age_days']}")
-
-    y -= 35
-    pdf.setFont("Helvetica-Bold", 13)
-    pdf.drawString(50, y, "Explanation")
-
-    y -= 25
-    pdf.setFont("Helvetica", 10)
-
-    for reason in scan["reasons"]:
-        if y < 80:
-            pdf.showPage()
-            y = height - 50
-            pdf.setFont("Helvetica", 10)
-
-        pdf.drawString(60, y, f"- {reason[:100]}")
-        y -= 18
-
-    y -= 20
-    pdf.setFont("Helvetica-Bold", 13)
-    pdf.drawString(50, y, "Important Note")
-
-    y -= 20
-    pdf.setFont("Helvetica", 10)
-    pdf.drawString(
-        50,
-        y,
-        "This system provides automated risk analysis. Final decisions should include manual verification."
-    )
-
-    pdf.save()
-
-    return filepath
+def generate_pdf_report(scan, user=None) -> bytes:
+    if isinstance(scan, dict):
+        result = {
+            "url": scan.get("url"),
+            "normalized_url": scan.get("url"),
+            "prediction": scan.get("prediction", "UNVERIFIED"),
+            "risk_score": scan.get("risk_score"),
+            "ml_phishing_probability": scan.get("ml_probability"),
+            "ml_prediction": scan.get("ml_prediction"),
+            "reasons": scan.get("reasons", []),
+            "whois": {"domain": scan.get("domain"), "domain_age_days": scan.get("domain_age_days")},
+            "threat_intelligence": [],
+            "model_explanation": {"status": "unavailable", "items": []},
+        }
+        scan = SimpleNamespace(
+            id=scan.get("id", 0), submitted_url=scan.get("url", ""),
+            prediction=scan.get("prediction", "UNVERIFIED"), risk_score=scan.get("risk_score"),
+            ml_probability=scan.get("ml_probability"), result_data=result,
+            created_at=scan.get("scanned_at", ""),
+        )
+    return _generate_pdf_report(scan, user)

@@ -1,0 +1,1 @@
+{% extends "base.html" %}{% block title %}{{ code }} | Sentinel{% endblock %}{% block content %}<section class="error-page"><span class="error-code">{{ code }}</span><h1>{{ message }}</h1><p>Return to the previous screen or open your workspace.</p><a class="button button-primary" href="{{ url_for('main.index') }}">Back to Sentinel <span>→</span></a></section>{% endblock %}

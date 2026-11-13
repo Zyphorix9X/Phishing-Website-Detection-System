@@ -1,0 +1,75 @@
+{
+  "created_at": "2026-11-13T16:08:48.713928+00:00",
+  "model_sha256": "dd0075c1d6bc715da1f0fac7dcb4f20d4e6ef912646ec72a751adf48eefcf987",
+  "feature_extractor_sha256": "0fd33dce61b88eea0e83548eb2ad7167ec86f60aef41443c9279849c47c6d48e",
+  "deployment_status": "research_only",
+  "source": "UCI PhiUSIIL",
+  "source_reference": "https://archive.ics.uci.edu/dataset/967/phiusiil+phishing+url+dataset",
+  "source_labels": {
+    "0": "phishing",
+    "1": "legitimate"
+  },
+  "source_formatting": [
+    {
+      "source_label": 0,
+      "meaning": "phishing",
+      "rows": 100945,
+      "empty_path_percent": 40.1387,
+      "root_slash_percent": 32.6623,
+      "www_prefix_percent": 41.3532
+    },
+    {
+      "source_label": 1,
+      "meaning": "legitimate",
+      "rows": 134850,
+      "empty_path_percent": 100.0,
+      "root_slash_percent": 0.0,
+      "www_prefix_percent": 100.0
+    }
+  ],
+  "split": {
+    "train_rows": 160832,
+    "test_rows": 40208,
+    "test_domains": 30270,
+    "overlapping_domains": 2789,
+    "test_rows_with_unambiguous_source_label": 40208
+  },
+  "threshold": 0.85,
+  "sample_seed": 42,
+  "checks": [
+    {
+      "check": "legitimate_original",
+      "rows": 2000,
+      "flagged_as_phishing": 0,
+      "false_positives": 0,
+      "mean_phishing_score": 0.004866
+    },
+    {
+      "check": "legitimate_root_slash",
+      "rows": 2000,
+      "flagged_as_phishing": 1786,
+      "false_positives": 1786,
+      "mean_phishing_score": 0.932731
+    },
+    {
+      "check": "phishing_original",
+      "rows": 2000,
+      "flagged_as_phishing": 1987,
+      "missed_at_threshold": 13,
+      "mean_phishing_score": 0.993817
+    },
+    {
+      "check": "phishing_root_slash_removed",
+      "rows": 2000,
+      "flagged_as_phishing": 1978,
+      "missed_at_threshold": 22,
+      "mean_phishing_score": 0.988686
+    }
+  ],
+  "limitations": [
+    "These are diagnostics of the preserved split, not independent deployment accuracy estimates.",
+    "All legitimate source examples share www and empty-path formatting, allowing a spurious shortcut.",
+    "Removing root slashes can reduce false positives while also hiding genuine phishing examples; it is not a general accuracy fix.",
+    "Independent, representative legitimate hosts and paths and current phishing examples are needed before deployment validation."
+  ]
+}

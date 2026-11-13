@@ -1,0 +1,25 @@
+{
+  "model_version": "legacy-preserved-phiusiil-raw-labels",
+  "model_type": "RandomForestClassifier pipeline",
+  "created_at": null,
+  "positive_class_label": 0,
+  "deployment_status": "research_only",
+  "deployment_warning": "The preserved model learned dataset formatting shortcuts: all legitimate source examples are www homepages without a path. Equivalent trailing slashes can reverse its predictions. Its score alone cannot establish whether a URL is phishing or legitimate.",
+  "quality_audit": "reports/model_quality_audit.json",
+  "class_meanings": {
+    "0": "phishing",
+    "1": "legitimate"
+  },
+  "mapping_source": "UCI PhiUSIIL source label definition",
+  "evaluation_schema_version": 1,
+  "evaluation_label_mapping": {
+    "0": "phishing",
+    "1": "legitimate"
+  },
+  "evaluation_status": "legacy_metrics_not_verified_for_phishing_positive_class",
+  "feature_pipeline": [
+    "character-level TF-IDF",
+    "URL lexical and structural features"
+  ],
+  "note": "The model file is preserved. The existing training code used the source numeric values as estimator classes; inference now treats source class 0 as phishing and class 1 as legitimate. The prior metrics file did not record this mapping and is withheld from the admin performance view."
+}

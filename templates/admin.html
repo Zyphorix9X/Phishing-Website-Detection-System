@@ -1,87 +1,68 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Admin Dashboard</title>
-    <link rel="stylesheet" href="/static/style.css">
-</head>
-<body>
-
-<div class="container wide">
-
-    <h1>Admin Dashboard</h1>
-
-    <div class="stats-grid">
-        <div class="stat-card">
-            <h2>{{ stats.total_scans }}</h2>
-            <p>Total Scans</p>
-        </div>
-
-        <div class="stat-card danger-border">
-            <h2>{{ stats.phishing_count }}</h2>
-            <p>Phishing</p>
-        </div>
-
-        <div class="stat-card safe-border">
-            <h2>{{ stats.legitimate_count }}</h2>
-            <p>Legitimate</p>
-        </div>
-
-        <div class="stat-card">
-            <h2>{{ stats.avg_risk }}%</h2>
-            <p>Average Risk</p>
-        </div>
-    </div>
-
-    <div class="reason-box">
-        <h3>Model Metrics</h3>
-
-        {% if metrics %}
-            <p><strong>Training Rows:</strong> {{ metrics.dataset.train_rows }}</p>
-            <p><strong>Testing Rows:</strong> {{ metrics.dataset.test_rows }}</p>
-            <p><strong>Accuracy:</strong> {{ metrics.performance.accuracy }}</p>
-            <p><strong>Precision:</strong> {{ metrics.performance.precision }}</p>
-            <p><strong>Recall:</strong> {{ metrics.performance.recall }}</p>
-            <p><strong>F1 Score:</strong> {{ metrics.performance.f1_score }}</p>
-            <p><strong>ROC-AUC:</strong> {{ metrics.performance.roc_auc }}</p>
-        {% else %}
-            <p>Model metrics not found. Run training first.</p>
-        {% endif %}
-    </div>
-
-    <div class="reason-box">
-        <h3>Confusion Matrix</h3>
-
-        {% if confusion_matrix_exists %}
-            <img src="/models/confusion-matrix" class="matrix-img">
-        {% else %}
-            <p>Confusion matrix not available. Train the model first.</p>
-        {% endif %}
-    </div>
-
-    <div class="reason-box">
-        <h3>Top Scanned Domains</h3>
-
-        <table>
-            <tr>
-                <th>Domain</th>
-                <th>Count</th>
-            </tr>
-
-            {% for domain, count in stats.top_domains %}
-            <tr>
-                <td>{{ domain }}</td>
-                <td>{{ count }}</td>
-            </tr>
-            {% endfor %}
-        </table>
-    </div>
-
-    <div class="links">
-        <a href="/">Back to Scanner</a>
-        <a href="/history">Scan History</a>
-    </div>
-
+{% extends "base.html" %}
+{% block title %}Admin console | Sentinel{% endblock %}
+{% block content %}
+<div class="page-heading">
+  <div><span class="section-kicker">ADMINISTRATION</span><h1>System overview</h1><p>Aggregate scan and account activity across the platform.</p></div>
+  <span class="status-pill admin-pill">ADMINISTRATOR</span>
 </div>
-
-</body>
-</html>
+<section class="stats-grid">
+  <article class="stat-card"><div class="stat-label">REGISTERED USERS</div><strong>{{ stats.users }}</strong><p>Accounts in the database</p></article>
+  <article class="stat-card"><div class="stat-label">TOTAL SCANS</div><strong>{{ stats.scans }}</strong><p>Includes legacy records</p></article>
+  <article class="stat-card stat-danger"><div class="stat-label">PHISHING</div><strong>{{ stats.phishing }}</strong><p>Stored verdicts</p></article>
+  <article class="stat-card stat-warning"><div class="stat-label">SUSPICIOUS</div><strong>{{ stats.suspicious }}</strong><p>Stored verdicts</p></article>
+</section>
+<section class="dashboard-grid">
+  <article class="content-card chart-card">
+    <div class="card-heading"><div><span class="section-kicker">SAVED RESULTS</span><h2>Verdict distribution</h2></div></div>
+    {% if stats.scans %}
+      <div class="donut-wrap"><div class="donut-chart"><canvas id="adminDistribution" aria-label="Platform scan verdict distribution" role="img"></canvas></div>
+        <div class="chart-legend">
+          <div><i style="background:#ff6978"></i><span>Phishing</span><strong>{{ stats.phishing }}</strong></div>
+          <div><i style="background:#f6b94a"></i><span>Suspicious</span><strong>{{ stats.suspicious }}</strong></div>
+          <div><i style="background:#35d3b5"></i><span>Legitimate</span><strong>{{ stats.legitimate }}</strong></div>
+          <div><i style="background:#77869a"></i><span>Unverified</span><strong>{{ stats.unverified }}</strong></div>
+        </div>
+      </div>
+    {% else %}<div class="empty-state"><strong>No scans recorded yet</strong><p>Platform metrics will populate from saved scans.</p></div>{% endif %}
+  </article>
+  <article class="content-card chart-card">
+    <div class="card-heading"><div><span class="section-kicker">PLATFORM ACTIVITY</span><h2>Last 7 days</h2></div></div>
+    {% if trend.scan_values|sum %}<div class="chart-wrap"><canvas id="adminTrend" aria-label="Platform scan and phishing activity over the last 7 days" role="img"></canvas></div>
+    {% else %}<div class="empty-state"><strong>No recent scan activity</strong><p>New saved scans will appear here.</p></div>{% endif %}
+  </article>
+  <article class="content-card chart-card">
+    <div class="card-heading"><div><span class="section-kicker">MODEL PERFORMANCE</span><h2>Held-out evaluation</h2></div></div>
+    {% if metrics %}<div class="metrics-grid">{% for label, value in metrics.performance.items() %}<div class="metric-cell"><span>{{ label|replace('_',' ')|title }}</span><strong>{{ value }}</strong></div>{% endfor %}</div><p class="muted-copy">Evaluation generated with explicit 0 = legitimate, 1 = phishing labels.</p>
+    {% else %}<div class="notice-box warning-notice"><span>!</span><div><strong>Legacy metrics withheld</strong><p>The saved evaluation does not record the corrected PhiUSIIL class mapping. Its phishing-specific precision and recall are not shown. Rebuild the prepared split and retrain to publish verified metrics.</p></div></div>{% endif %}
+  </article>
+</section>
+<section class="content-card table-card">
+  <div class="card-heading"><div><span class="section-kicker">RECENT ACTIVITY</span><h2>Latest platform scans</h2></div><div class="heading-actions"><a class="text-link" href="{{ url_for('admin.users') }}">Users →</a><a class="text-link" href="{{ url_for('admin.audit') }}">Audit log →</a></div></div>
+  {% if scans %}<div class="table-scroll"><table class="data-table"><thead><tr><th>URL</th><th>Owner</th><th>Verdict</th><th>Risk</th><th>Date</th></tr></thead><tbody>{% for scan in scans %}<tr><td class="table-url">{{ scan.normalized_url }}</td><td>{{ scan.user.email if scan.user else 'Legacy / guest' }}</td><td><span class="verdict-badge badge-{{ scan.prediction|lower }}">{{ scan.prediction }}</span></td><td>{{ scan.risk_score|round|int if scan.risk_score is not none else '—' }}</td><td>{{ scan.created_at|sl_time('%b %d, %Y · %H:%M') }}</td></tr>{% endfor %}</tbody></table></div>
+  {% else %}<div class="empty-row"><p>No scan activity.</p></div>{% endif %}
+</section>
+{% endblock %}
+{% block scripts %}
+{% if stats.scans %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js" defer></script>
+<script defer>
+document.addEventListener('DOMContentLoaded', () => {
+  const distribution = document.getElementById('adminDistribution');
+  if (distribution) new Chart(distribution, {
+    type: 'doughnut',
+    data: { labels: ['Phishing', 'Suspicious', 'Legitimate', 'Unverified'], datasets: [{ data: {{ distribution|tojson }}, backgroundColor: ['#ff6978', '#f6b94a', '#35d3b5', '#77869a'], borderColor: '#111c2a', borderWidth: 4 }] },
+    options: { cutout: '72%', plugins: { legend: { display: false } } }
+  });
+  const trend = document.getElementById('adminTrend');
+  if (trend) new Chart(trend, {
+    type: 'line',
+    data: { labels: {{ trend.labels|tojson }}, datasets: [
+      { label: 'All scans', data: {{ trend.scan_values|tojson }}, borderColor: '#5b9cff', backgroundColor: 'rgba(91,156,255,.12)', fill: true, tension: .35 },
+      { label: 'Phishing', data: {{ trend.phishing_values|tojson }}, borderColor: '#ff6978', backgroundColor: 'rgba(255,105,120,.08)', fill: false, tension: .35 }
+    ] },
+    options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true, ticks: { precision: 0, color: '#91a0b3' }, grid: { color: 'rgba(145,160,179,.12)' } }, x: { ticks: { color: '#91a0b3' }, grid: { display: false } } }, plugins: { legend: { labels: { color: '#91a0b3' } } } }
+  });
+});
+</script>
+{% endif %}
+{% endblock %}

@@ -4,6 +4,8 @@ import ipaddress
 from urllib.parse import urlparse
 import tldextract
 
+_extract = tldextract.TLDExtract(suffix_list_urls=())
+
 
 SUSPICIOUS_WORDS = [
     "login", "verify", "update", "secure", "account", "bank",
@@ -66,9 +68,10 @@ def count_special_chars(text: str) -> int:
 
 def extract_url_features(url: str) -> dict:
     parsed = safe_parse(url)
-    extracted = tldextract.extract(url)
+    extracted = _extract(url)
 
     domain = parsed.netloc.lower()
+    hostname = (parsed.hostname or '').lower().rstrip('.')
     path = parsed.path.lower()
     query = parsed.query.lower()
     subdomain = extracted.subdomain.lower()
@@ -98,7 +101,7 @@ def extract_url_features(url: str) -> dict:
 
         "has_https": 1 if parsed.scheme == "https" else 0,
         "has_http": 1 if parsed.scheme == "http" else 0,
-        "has_ip_address": has_ip_address(domain),
+        "has_ip_address": has_ip_address(hostname),
 
         "subdomain_length": len(subdomain),
         "tld_length": len(suffix),
@@ -114,7 +117,7 @@ def extract_url_features(url: str) -> dict:
 
         "contains_double_slash_redirect": 1 if "//" in path else 0,
         "contains_percent_encoding": 1 if "%" in url else 0,
-        "contains_shortener_hint": 1 if any(short in domain for short in SHORTENERS) else 0,
+        "contains_shortener_hint": int(any(hostname == short or hostname.endswith('.' + short) for short in SHORTENERS)),
 
         "url_entropy": round(shannon_entropy(url_lower), 4),
         "domain_entropy": round(shannon_entropy(domain), 4),
@@ -172,11 +175,11 @@ def explain_url_risk(url: str, phishing_probability: float, extra_context=None) 
         reasons.append("Domain appears very new based on WHOIS information.")
 
     if phishing_probability >= 0.90:
-        reasons.append("Machine learning model gives a very high phishing probability.")
+        reasons.append("The model assigns a very high uncalibrated phishing score.")
     elif phishing_probability >= 0.70:
-        reasons.append("Machine learning model gives a high phishing probability.")
+        reasons.append("The model assigns a high uncalibrated phishing score.")
     elif phishing_probability >= 0.50:
-        reasons.append("Machine learning model gives a medium phishing probability.")
+        reasons.append("The model assigns a medium uncalibrated phishing score.")
 
     if not reasons:
         reasons.append("No strong phishing indicators found, but manual verification is still recommended.")
